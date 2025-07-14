@@ -19,8 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { departments, locations, titles } from '@/constants/employee-constants'
+import { employeeApi } from '@/queries/employee'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useQuery } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -71,6 +72,11 @@ export function EmployeeForm({
         },
   })
 
+    const { data: filters } = useQuery({
+      queryKey: ['employees-filters'],
+      queryFn: employeeApi.getFilters,
+    })
+
   const handleSubmit = async (data: EmployeeFormData) => {
     try {
       await onSubmit(data as CreateEmployeeData)
@@ -81,7 +87,7 @@ export function EmployeeForm({
   }
 
   return (
-    <Card className='w-full max-w-2xl mx-auto bg-transparent border-0'>
+    <Card className='w-full max-w-2xl mx-auto bg-transparent border-0 py-4'>
       <CardHeader className='px-2'>
         <CardTitle>{employee ? 'Edit Employee' : 'Add New Employee'}</CardTitle>
       </CardHeader>
@@ -166,7 +172,7 @@ export function EmployeeForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {departments.map((dept) => (
+                        {filters?.departments.map((dept) => (
                           <SelectItem key={dept} value={dept}>
                             {dept}
                           </SelectItem>
@@ -194,7 +200,7 @@ export function EmployeeForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {titles.map((title) => (
+                        {filters?.titles.map((title) => (
                           <SelectItem key={title} value={title}>
                             {title}
                           </SelectItem>
@@ -223,7 +229,7 @@ export function EmployeeForm({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {locations.map((location) => (
+                      {filters?.locations.map((location) => (
                         <SelectItem key={location} value={location}>
                           {location}
                         </SelectItem>
