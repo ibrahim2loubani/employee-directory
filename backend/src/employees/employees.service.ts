@@ -113,12 +113,17 @@ export class EmployeesService {
     let filteredEmployees = [...this.employees];
 
     if (query.search) {
-      const searchTerm = query.search.toLowerCase();
+      const searchTerm = query.search.trim().toLowerCase();
       filteredEmployees = filteredEmployees.filter(
-        (emp) =>
-          emp.firstName.toLowerCase().includes(searchTerm) ||
-          emp.lastName.toLowerCase().includes(searchTerm) ||
-          emp.email.toLowerCase().includes(searchTerm),
+        (emp) => {
+          const fullName = `${emp.firstName} ${emp.lastName}`.toLowerCase();
+          return (
+            emp.firstName.toLowerCase().includes(searchTerm) ||
+            emp.lastName.toLowerCase().includes(searchTerm) ||
+            emp.email.toLowerCase().includes(searchTerm) ||
+            fullName.includes(searchTerm)
+          );
+        },
       );
     }
 
