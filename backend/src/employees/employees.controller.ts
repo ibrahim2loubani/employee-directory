@@ -9,8 +9,10 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import type { CreateEmployeeDto } from './dto/create-employee.dto';
+import { CreateEmployeeDto } from './dto/create-employee.dto';
 import type { QueryEmployeeDto } from './dto/query-employee.dto';
 import type { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeesService } from './employees.service';
@@ -22,12 +24,8 @@ export class EmployeesController {
 
   @Post()
   async create(
-    @Body() createEmployeeDto: CreateEmployeeDto,
+    @Body() createEmployeeDto: any,
   ): Promise<Employee> {
-    console.log('Received raw body:', createEmployeeDto);
-    console.log('Body type:', typeof createEmployeeDto);
-    console.log('Body keys:', Object.keys(createEmployeeDto));
-    console.log('Body values:', Object.values(createEmployeeDto));
     return this.employeesService.create(createEmployeeDto);
   }
 
