@@ -23,6 +23,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { EmployeeCardSkeleton } from '@/components/ui/shimmer'
+
+// API and query imports
 import {
   createEmployeeAction,
   deleteEmployeeAction,
@@ -30,22 +32,52 @@ import {
 } from '@/queries/actions'
 import { employeeApi } from '@/queries/employee'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+
+// External library imports
 import { motion } from 'framer-motion'
 import { Plus, Search } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
+/**
+ * EmployeePage - Main page component for the Employee Directory
+ *
+ * This component provides a complete employee management interface with:
+ * - Employee listing with pagination
+ * - Search functionality
+ * - Filtering by department, title, location, and status
+ * - CRUD operations (Create, Read, Update, Delete)
+ * - Responsive design with animations
+ *
+ * Key features:
+ * - Real-time search with debounced input
+ * - Filter dropdowns populated from API data
+ * - Modal dialogs for creating/editing employees
+ * - Confirmation dialog for deletions
+ * - Loading skeletons during data fetching
+ * - Toast notifications for user feedback
+ * - Optimistic UI updates with React Query
+ */
 export default function EmployeePage() {
+  // State for employee query parameters (pagination, filters, search)
   const [query, setQuery] = useState<EmployeeQuery>({ page: 1, limit: 12 })
+  
+  // Form dialog state management
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
+  
+  // Delete confirmation dialog state
   const [deletingEmployeeId, setDeletingEmployeeId] = useState<string | null>(
     null,
   )
+  
+  // Search input state (separate from query for immediate UI feedback)
   const [searchTerm, setSearchTerm] = useState('')
 
+  // React Query client for cache invalidation
   const queryClient = useQueryClient()
 
+  // Fetch employees with current query parameters (pagination, filters, search)
   const {
     data: employeesData,
     isLoading,
@@ -55,11 +87,13 @@ export default function EmployeePage() {
     queryFn: () => employeeApi.getEmployees(query),
   })
 
+  // Fetch filter options for dropdowns (departments, titles, locations)
   const { data: filters } = useQuery({
     queryKey: ['employees-filters'],
     queryFn: employeeApi.getFilters,
   })
 
+  // Create employee mutation with success/error handling
   const createMutation = useMutation({
     mutationFn: createEmployeeAction,
     onSuccess: (result) => {
@@ -73,6 +107,7 @@ export default function EmployeePage() {
     },
   })
 
+  // Update employee mutation with success/error handling
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       updateEmployeeAction(id, data),
@@ -87,6 +122,7 @@ export default function EmployeePage() {
     },
   })
 
+  // Delete employee mutation with success/error handling
   const deleteMutation = useMutation({
     mutationFn: deleteEmployeeAction,
     onSuccess: (result) => {
@@ -100,11 +136,19 @@ export default function EmployeePage() {
     },
   })
 
+  /**
+   * Handles search input changes and updates query parameters
+   * Resets pagination to page 1 when search term changes
+   */
   const handleSearch = (value: string) => {
     setSearchTerm(value)
     setQuery((prev) => ({ ...prev, search: value, page: 1 }))
   }
 
+  /**
+   * Handles filter dropdown changes (department, title, location, status)
+   * Converts 'all' selection to undefined and resets pagination
+   */
   const handleFilterChange = (key: keyof EmployeeQuery, value: string) => {
     setQuery((prev) => ({
       ...prev,
@@ -113,20 +157,33 @@ export default function EmployeePage() {
     }))
   }
 
+  /**
+   * Sets the employee to be edited, opening the form dialog
+   */
   const handleEdit = (employee: Employee) => {
     setEditingEmployee(employee)
   }
 
+  /**
+   * Sets the employee ID to be deleted, opening the confirmation dialog
+   */
   const handleDelete = (id: string) => {
     setDeletingEmployeeId(id)
   }
 
+  /**
+   * Confirms deletion and triggers the delete mutation
+   */
   const confirmDelete = () => {
     if (deletingEmployeeId) {
       deleteMutation.mutate(deletingEmployeeId)
     }
   }
 
+  /**
+   * Handles form submission for both create and update operations
+   * Determines operation type based on editingEmployee state
+   */
   const handleFormSubmit = async (data: any) => {
     if (editingEmployee) {
       await updateMutation.mutateAsync({ id: editingEmployee.id, data })
@@ -253,6 +310,32 @@ export default function EmployeePage() {
           ? Array.from({ length: 12 }).map((_, index) => (
               <EmployeeCardSkeleton key={index} />
             ))
+          : employeesData?.employees.length === 0
+          ? (
+              <div className='col-span-full text-center py-16'>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className='space-y-4'
+                >
+                  <div className='text-6xl'>🔍</div>
+                  <h3 className='text-xl font-semibold text-muted-foreground'>
+                    No employees found
+                  </h3>
+                  <p className='text-muted-foreground max-w-md mx-auto'>
+                    {searchTerm || query.department || query.title || query.location || query.status
+                      ? 'Try adjusting your search terms or filters to find what you\'re looking for.'
+                      : 'Get started by adding your first employee to the directory.'}
+                  </p>
+                  {!searchTerm && !query.department && !query.title && !query.location && !query.status && (
+                    <Button onClick={() => setIsFormOpen(true)} className='mt-4'>
+                      <Plus className='h-4 w-4 mr-2' />
+                      Add First Employee
+                    </Button>
+                  )}
+                </motion.div>
+              </div>
+            )
           : employeesData?.employees.map((employee, index) => (
               <EmployeeCard
                 key={employee.id}

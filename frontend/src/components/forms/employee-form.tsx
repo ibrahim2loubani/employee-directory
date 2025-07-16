@@ -72,15 +72,14 @@ export function EmployeeForm({
         },
   })
 
-    const { data: filters } = useQuery({
-      queryKey: ['employees-filters'],
-      queryFn: employeeApi.getFilters,
-    })
+  const { data: filters } = useQuery({
+    queryKey: ['employees-filters'],
+    queryFn: employeeApi.getFilters,
+  })
 
   const handleSubmit = async (data: EmployeeFormData) => {
     try {
       await onSubmit(data as CreateEmployeeData)
-      toast(`Employee ${employee ? 'updated' : 'created'} successfully`)
     } catch (error) {
       toast(`Failed to ${employee ? 'update' : 'create'} employee`)
     }

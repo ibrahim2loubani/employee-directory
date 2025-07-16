@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import type { CreateEmployeeDto } from './dto/create-employee.dto';
-import type { UpdateEmployeeDto } from './dto/update-employee.dto';
 import type {
   Employee,
   RandomUser,
@@ -114,17 +113,15 @@ export class EmployeesService {
 
     if (query.search) {
       const searchTerm = query.search.trim().toLowerCase();
-      filteredEmployees = filteredEmployees.filter(
-        (emp) => {
-          const fullName = `${emp.firstName} ${emp.lastName}`.toLowerCase();
-          return (
-            emp.firstName.toLowerCase().includes(searchTerm) ||
-            emp.lastName.toLowerCase().includes(searchTerm) ||
-            emp.email.toLowerCase().includes(searchTerm) ||
-            fullName.includes(searchTerm)
-          );
-        },
-      );
+      filteredEmployees = filteredEmployees.filter((emp) => {
+        const fullName = `${emp.firstName} ${emp.lastName}`.toLowerCase();
+        return (
+          emp.firstName.toLowerCase().includes(searchTerm) ||
+          emp.lastName.toLowerCase().includes(searchTerm) ||
+          emp.email.toLowerCase().includes(searchTerm) ||
+          fullName.includes(searchTerm)
+        );
+      });
     }
 
     if (query.department) {
@@ -207,7 +204,7 @@ export class EmployeesService {
 
     // Default avatar based on first name
     const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      createEmployeeDto.firstName || 'Employee'
+      createEmployeeDto.firstName || 'Employee',
     )}&background=6366f1&color=ffffff&size=200`;
 
     const newEmployee: Employee = {
@@ -233,7 +230,7 @@ export class EmployeesService {
 
   async update(
     id: string,
-    updateEmployeeDto: UpdateEmployeeDto,
+    updateEmployeeDto: Partial<CreateEmployeeDto>,
   ): Promise<Employee> {
     const employeeIndex = this.employees.findIndex((emp) => emp.id === id);
     if (employeeIndex === -1) {

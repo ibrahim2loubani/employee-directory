@@ -21,7 +21,6 @@ export function EmployeeCard({
   onDelete,
   delay = 0,
 }: EmployeeCardProps) {
-  console.log('🚀 ~ employee:', employee)
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName?.charAt(0)}${lastName?.charAt(0)}`.toUpperCase()
   }
