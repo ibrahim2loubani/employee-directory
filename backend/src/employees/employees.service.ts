@@ -133,6 +133,24 @@ export class EmployeesService {
       );
     }
 
+    if (query.title) {
+      filteredEmployees = filteredEmployees.filter(
+        (emp) => emp.title === query.title,
+      );
+    }
+
+    if (query.location) {
+      filteredEmployees = filteredEmployees.filter(
+        (emp) => emp.location === query.location,
+      );
+    }
+
+    if (query.status) {
+      filteredEmployees = filteredEmployees.filter(
+        (emp) => emp.status === query.status,
+      );
+    }
+
     if (query.sortBy) {
       const sortOrder = query.sortOrder === 'desc' ? -1 : 1;
       filteredEmployees.sort((a, b) => {
