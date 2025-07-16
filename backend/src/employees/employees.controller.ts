@@ -24,6 +24,10 @@ export class EmployeesController {
   async create(
     @Body() createEmployeeDto: CreateEmployeeDto,
   ): Promise<Employee> {
+    console.log('Received raw body:', createEmployeeDto);
+    console.log('Body type:', typeof createEmployeeDto);
+    console.log('Body keys:', Object.keys(createEmployeeDto));
+    console.log('Body values:', Object.values(createEmployeeDto));
     return this.employeesService.create(createEmployeeDto);
   }
 

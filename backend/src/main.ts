@@ -12,6 +12,9 @@ async function bootstrap(): Promise<void> {
       whitelist: true,
       forbidNonWhitelisted: false,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
