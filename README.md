@@ -214,25 +214,8 @@ The backend provides RESTful API endpoints for employee management:
    - Backend: Change port in `backend/src/main.ts`
    - Frontend: Use `pnpm run dev -- -p 3001` to run on different port
 
-2. **Environment variables not loading:**
-   - Ensure `.env.local` is in the `frontend` directory
-   - Restart the development server after adding environment variables
 
-3. **Dependencies issues:**
+2. **Dependencies issues:**
    - Delete `node_modules` and `pnpm-lock.yaml`
    - Run `pnpm install` again
 
-## 📄 License
-
-This project is licensed under the MIT License.
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📞 Support
-
-For support or questions, please open an issue in the GitHub repository.
