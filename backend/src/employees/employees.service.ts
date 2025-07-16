@@ -162,20 +162,7 @@ export class EmployeesService {
   }
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
-    if (!createEmployeeDto || typeof createEmployeeDto !== 'object') {
-      throw new BadRequestException(
-        'Invalid request body. Expected a JSON object.',
-      );
-    }
-
-    if (
-      !createEmployeeDto.email ||
-      typeof createEmployeeDto.email !== 'string'
-    ) {
-      throw new BadRequestException('Email is required and must be a string.');
-    }
-
-    const email = createEmployeeDto.email.trim().toLowerCase();
+    const email = createEmployeeDto.email?.trim().toLowerCase();
 
     // Check if email already exists (case-insensitive)
     const existingEmployee = this.employees.find(
@@ -189,7 +176,7 @@ export class EmployeesService {
     const newEmployee: Employee = {
       id: this.generateId(),
       ...createEmployeeDto,
-      email: createEmployeeDto.email.trim(), // Store original case but trimmed
+      email: createEmployeeDto.email?.trim() || '', // Store original case but trimmed
       avatar: createEmployeeDto.avatar || '', // Provide default empty string if avatar is not provided
     };
 

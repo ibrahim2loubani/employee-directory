@@ -1,4 +1,3 @@
-import { Transform, Type } from 'class-transformer';
 import {
   IsDateString,
   IsEmail,
@@ -56,13 +55,6 @@ export class CreateEmployeeDto {
   @IsDateString()
   hireDate: string;
 
-  @Type(() => Number)
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return Number(value);
-    }
-    return value;
-  })
   @IsNumber()
   @Min(0)
   @Max(1000000)
