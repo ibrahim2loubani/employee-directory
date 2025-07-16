@@ -81,20 +81,6 @@ cd frontend
 pnpm install
 ```
 
-#### Environment Configuration
-
-The frontend requires environment variables to connect to the backend API. Create a `.env.local` file in the frontend directory:
-
-```bash
-# Create .env.local file
-touch .env.local
-```
-
-Add the following content to `.env.local`:
-```
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
 #### Available Frontend Scripts:
 
 ```bash
