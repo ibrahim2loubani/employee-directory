@@ -205,14 +205,29 @@ export class EmployeesService {
       throw new BadRequestException('Employee with this email already exists');
     }
 
+    // Default avatar based on first name
+    const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      createEmployeeDto.firstName || 'Employee'
+    )}&background=6366f1&color=ffffff&size=200`;
+
     const newEmployee: Employee = {
       id: this.generateId(),
-      ...createEmployeeDto,
-      email: createEmployeeDto.email?.trim() || '', // Store original case but trimmed
-      avatar: createEmployeeDto.avatar || '', // Provide default empty string if avatar is not provided
+      firstName: createEmployeeDto.firstName || '',
+      lastName: createEmployeeDto.lastName || '',
+      email: createEmployeeDto.email?.trim() || '',
+      phone: createEmployeeDto.phone || '',
+      department: createEmployeeDto.department || '',
+      title: createEmployeeDto.title || '',
+      location: createEmployeeDto.location || '',
+      dateOfBirth: createEmployeeDto.dateOfBirth || '',
+      hireDate: createEmployeeDto.hireDate || '',
+      salary: createEmployeeDto.salary || 0,
+      status: createEmployeeDto.status || 'active',
+      avatar: createEmployeeDto.avatar || defaultAvatar,
     };
 
-    this.employees.push(newEmployee);
+    // Add new employee at the beginning of the array
+    this.employees.unshift(newEmployee);
     return newEmployee;
   }
 

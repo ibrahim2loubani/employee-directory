@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { AnimatedCard } from "@/components/cards/animated-card"
-import { CardContent, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Edit, Trash2, Mail, Phone, MapPin, Calendar } from "lucide-react"
-import { format } from "date-fns"
+import { AnimatedCard } from '@/components/cards/animated-card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { CardContent, CardHeader } from '@/components/ui/card'
+import { format } from 'date-fns'
+import { Calendar, Edit, Mail, MapPin, Phone, Trash2 } from 'lucide-react'
 
 interface EmployeeCardProps {
   employee: Employee
@@ -15,77 +15,101 @@ interface EmployeeCardProps {
   delay?: number
 }
 
-export function EmployeeCard({ employee, onEdit, onDelete, delay = 0 }: EmployeeCardProps) {
+export function EmployeeCard({
+  employee,
+  onEdit,
+  onDelete,
+  delay = 0,
+}: EmployeeCardProps) {
+  console.log('🚀 ~ employee:', employee)
   const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+    return `${firstName?.charAt(0)}${lastName?.charAt(0)}`.toUpperCase()
   }
 
   const formatSalary = (salary: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
       minimumFractionDigits: 0,
     }).format(salary)
   }
 
   return (
     <AnimatedCard delay={delay}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Avatar className="h-12 w-12">
+      <CardHeader className='pb-3'>
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center space-x-3'>
+            <Avatar className='h-12 w-12'>
               <AvatarImage
-                src={employee.avatar || "/placeholder.svg"}
+                src={employee.avatar || '/placeholder.svg'}
                 alt={`${employee.firstName} ${employee.lastName}`}
               />
-              <AvatarFallback>{getInitials(employee.firstName, employee.lastName)}</AvatarFallback>
+              <AvatarFallback>
+                {getInitials(employee.firstName, employee.lastName)}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-semibold text-lg">
+              <h3 className='font-semibold text-lg'>
                 {employee.firstName} {employee.lastName}
               </h3>
-              <p className="text-sm text-muted-foreground">{employee.title}</p>
+              <p className='text-sm text-muted-foreground'>{employee.title}</p>
             </div>
           </div>
-          <Badge variant={employee.status === "active" ? "default" : "secondary"}>{employee.status}</Badge>
+          <Badge
+            variant={employee.status === 'active' ? 'default' : 'secondary'}
+          >
+            {employee.status}
+          </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="grid grid-cols-1 gap-2 text-sm">
-          <div className="flex items-center space-x-2">
-            <Mail className="h-4 w-4 text-muted-foreground" />
-            <span className="truncate">{employee.email}</span>
+      <CardContent className='space-y-3'>
+        <div className='grid grid-cols-1 gap-2 text-sm'>
+          <div className='flex items-center space-x-2'>
+            <Mail className='h-4 w-4 text-muted-foreground' />
+            <span className='truncate'>{employee.email}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Phone className="h-4 w-4 text-muted-foreground" />
+          <div className='flex items-center space-x-2'>
+            <Phone className='h-4 w-4 text-muted-foreground' />
             <span>{employee.phone}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
+          <div className='flex items-center space-x-2'>
+            <MapPin className='h-4 w-4 text-muted-foreground' />
             <span>{employee.location}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>Hired {format(new Date(employee.hireDate), "MMM yyyy")}</span>
+          <div className='flex items-center space-x-2'>
+            <Calendar className='h-4 w-4 text-muted-foreground' />
+            <span>
+              Hired{' '}
+              {employee.hireDate
+                ? format(new Date(employee.hireDate), 'MMM yyyy')
+                : 'N/A'}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2">
+        <div className='flex items-center justify-between pt-2'>
           <div>
-            <Badge variant="outline">{employee.department}</Badge>
-            <p className="text-sm font-medium mt-1">{formatSalary(employee.salary)}</p>
+            <Badge variant='outline'>{employee.department}</Badge>
+            <p className='text-sm font-medium mt-1'>
+              {formatSalary(employee.salary)}
+            </p>
           </div>
-          <div className="flex space-x-1">
-            <Button variant="outline" size="icon" onClick={() => onEdit(employee)} className="h-8 w-8">
-              <Edit className="h-4 w-4" />
+          <div className='flex space-x-1'>
+            <Button
+              variant='outline'
+              size='icon'
+              onClick={() => onEdit(employee)}
+              className='h-8 w-8'
+            >
+              <Edit className='h-4 w-4' />
             </Button>
             <Button
-              variant="outline"
-              size="icon"
+              variant='outline'
+              size='icon'
               onClick={() => onDelete(employee.id)}
-              className="h-8 w-8 text-destructive hover:text-destructive"
+              className='h-8 w-8 text-destructive hover:text-destructive'
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className='h-4 w-4' />
             </Button>
           </div>
         </div>
