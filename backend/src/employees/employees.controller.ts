@@ -11,10 +11,21 @@ import {
   Query,
 } from '@nestjs/common';
 import type { CreateEmployeeDto } from './dto/create-employee.dto';
-import type { QueryEmployeeDto } from './dto/query-employee.dto';
 import type { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeesService } from './employees.service';
 import type { Employee } from './interfaces/employee.interface';
+
+interface EmployeeQueryParams {
+  search?: string;
+  department?: string;
+  title?: string;
+  location?: string;
+  status?: 'active' | 'inactive';
+  page?: string;
+  limit?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
 
 @Controller('employees')
 export class EmployeesController {
@@ -28,7 +39,7 @@ export class EmployeesController {
   }
 
   @Get()
-  async findAll(@Query() query: QueryEmployeeDto): Promise<{
+  async findAll(@Query() query: EmployeeQueryParams): Promise<{
     employees: Employee[];
     total: number;
     page: number;

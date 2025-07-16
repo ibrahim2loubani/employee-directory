@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import type { CreateEmployeeDto } from './dto/create-employee.dto';
-import type { QueryEmployeeDto } from './dto/query-employee.dto';
 import type { UpdateEmployeeDto } from './dto/update-employee.dto';
 import type {
   Employee,
@@ -95,7 +94,17 @@ export class EmployeesService {
     };
   }
 
-  async findAll(query: QueryEmployeeDto): Promise<{
+  async findAll(query: {
+    search?: string;
+    department?: string;
+    title?: string;
+    location?: string;
+    status?: 'active' | 'inactive';
+    page?: string;
+    limit?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+  }): Promise<{
     employees: Employee[];
     total: number;
     page: number;
