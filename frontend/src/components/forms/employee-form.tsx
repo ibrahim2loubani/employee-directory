@@ -82,6 +82,7 @@ export function EmployeeForm({
       await onSubmit(data as CreateEmployeeData)
     } catch (error) {
       toast(`Failed to ${employee ? 'update' : 'create'} employee`)
+      console.error(error)
     }
   }
 

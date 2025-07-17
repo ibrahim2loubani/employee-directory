@@ -1,17 +1,8 @@
 'use client'
 
 import { EmployeeCard } from '@/components/cards/employee-card'
+import DeleteEmployeeDialog from '@/components/dialogs/DeleteEmployeeDialog'
 import { EmployeeForm } from '@/components/forms/employee-form'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
@@ -30,12 +21,13 @@ import {
   deleteEmployeeAction,
   updateEmployeeAction,
 } from '@/queries/actions'
-import { employeeApi } from '@/queries/employee'
+import { employeeApi, UpdateEmployeeData } from '@/queries/employee'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 // External library imports
 import { motion } from 'framer-motion'
 import { Plus, Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
@@ -59,18 +51,21 @@ import { toast } from 'sonner'
  * - Optimistic UI updates with React Query
  */
 export default function EmployeePage() {
+  // Router for navigation
+  const router = useRouter()
+
   // State for employee query parameters (pagination, filters, search)
   const [query, setQuery] = useState<EmployeeQuery>({ page: 1, limit: 12 })
-  
+
   // Form dialog state management
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null)
-  
+
   // Delete confirmation dialog state
   const [deletingEmployeeId, setDeletingEmployeeId] = useState<string | null>(
     null,
   )
-  
+
   // Search input state (separate from query for immediate UI feedback)
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -109,7 +104,7 @@ export default function EmployeePage() {
 
   // Update employee mutation with success/error handling
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateEmployeeData }) =>
       updateEmployeeAction(id, data),
     onSuccess: (result) => {
       if (result.success) {
@@ -172,6 +167,13 @@ export default function EmployeePage() {
   }
 
   /**
+   * Handles employee card click to navigate to employee detail page
+   */
+  const handleCardClick = (employee: Employee) => {
+    router.push(`/${employee.id}`)
+  }
+
+  /**
    * Confirms deletion and triggers the delete mutation
    */
   const confirmDelete = () => {
@@ -184,7 +186,7 @@ export default function EmployeePage() {
    * Handles form submission for both create and update operations
    * Determines operation type based on editingEmployee state
    */
-  const handleFormSubmit = async (data: any) => {
+  const handleFormSubmit = async (data: CreateEmployeeData) => {
     if (editingEmployee) {
       await updateMutation.mutateAsync({ id: editingEmployee.id, data })
     } else {
@@ -306,45 +308,54 @@ export default function EmployeePage() {
 
       {/* Employee Grid */}
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
-        {isLoading
-          ? Array.from({ length: 12 }).map((_, index) => (
-              <EmployeeCardSkeleton key={index} />
-            ))
-          : employeesData?.employees.length === 0
-          ? (
-              <div className='col-span-full text-center py-16'>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className='space-y-4'
-                >
-                  <div className='text-6xl'>🔍</div>
-                  <h3 className='text-xl font-semibold text-muted-foreground'>
-                    No employees found
-                  </h3>
-                  <p className='text-muted-foreground max-w-md mx-auto'>
-                    {searchTerm || query.department || query.title || query.location || query.status
-                      ? 'Try adjusting your search terms or filters to find what you\'re looking for.'
-                      : 'Get started by adding your first employee to the directory.'}
-                  </p>
-                  {!searchTerm && !query.department && !query.title && !query.location && !query.status && (
-                    <Button onClick={() => setIsFormOpen(true)} className='mt-4'>
-                      <Plus className='h-4 w-4 mr-2' />
-                      Add First Employee
-                    </Button>
-                  )}
-                </motion.div>
-              </div>
-            )
-          : employeesData?.employees.map((employee, index) => (
-              <EmployeeCard
-                key={employee.id}
-                employee={employee}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                delay={index * 0.05}
-              />
-            ))}
+        {isLoading ? (
+          Array.from({ length: 12 }).map((_, index) => (
+            <EmployeeCardSkeleton key={index} />
+          ))
+        ) : employeesData?.employees.length === 0 ? (
+          <div className='col-span-full text-center py-16'>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className='space-y-4'
+            >
+              <div className='text-6xl'>🔍</div>
+              <h3 className='text-xl font-semibold text-muted-foreground'>
+                No employees found
+              </h3>
+              <p className='text-muted-foreground max-w-md mx-auto'>
+                {searchTerm ||
+                query.department ||
+                query.title ||
+                query.location ||
+                query.status
+                  ? "Try adjusting your search terms or filters to find what you're looking for."
+                  : 'Get started by adding your first employee to the directory.'}
+              </p>
+              {!searchTerm &&
+                !query.department &&
+                !query.title &&
+                !query.location &&
+                !query.status && (
+                  <Button onClick={() => setIsFormOpen(true)} className='mt-4'>
+                    <Plus className='h-4 w-4 mr-2' />
+                    Add First Employee
+                  </Button>
+                )}
+            </motion.div>
+          </div>
+        ) : (
+          employeesData?.employees.map((employee, index) => (
+            <EmployeeCard
+              key={employee.id}
+              employee={employee}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onClick={handleCardClick}
+              delay={index * 0.05}
+            />
+          ))
+        )}
       </div>
 
       {/* Pagination */}
@@ -409,29 +420,24 @@ export default function EmployeePage() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog
-        open={!!deletingEmployeeId}
-        onOpenChange={() => setDeletingEmployeeId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              employee record.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              disabled={deleteMutation.isPending}
-            >
-              {deleteMutation.isPending ? 'Deleting...' : 'Delete'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {(() => {
+        const employeeToDelete = employeesData?.employees.find(
+          (emp) => emp.id === deletingEmployeeId,
+        )
+        const employeeName = employeeToDelete
+          ? `${employeeToDelete.firstName} ${employeeToDelete.lastName}`
+          : 'Unknown Employee'
+
+        return (
+          <DeleteEmployeeDialog
+            confirmDelete={confirmDelete}
+            employeeName={employeeName}
+            deletingEmployeeId={deletingEmployeeId}
+            setDeletingEmployeeId={setDeletingEmployeeId}
+            isDeleting={deleteMutation.isPending}
+          />
+        )
+      })()}
     </div>
   )
 }
