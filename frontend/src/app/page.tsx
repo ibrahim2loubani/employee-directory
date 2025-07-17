@@ -2,9 +2,8 @@
 
 import { EmployeeCard } from '@/components/cards/employee-card'
 import DeleteEmployeeDialog from '@/components/dialogs/DeleteEmployeeDialog'
-import { EmployeeForm } from '@/components/forms/employee-form'
+import { EditEmployeeDialog } from '@/components/dialogs/EditEmployeeDialog'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -16,12 +15,8 @@ import {
 import { EmployeeCardSkeleton } from '@/components/ui/shimmer'
 
 // API and query imports
-import {
-  createEmployeeAction,
-  deleteEmployeeAction,
-  updateEmployeeAction,
-} from '@/queries/actions'
-import { employeeApi, UpdateEmployeeData } from '@/queries/employee'
+import { deleteEmployeeAction } from '@/queries/actions'
+import { employeeApi } from '@/queries/employee'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 // External library imports
@@ -88,35 +83,6 @@ export default function EmployeePage() {
     queryFn: employeeApi.getFilters,
   })
 
-  // Create employee mutation with success/error handling
-  const createMutation = useMutation({
-    mutationFn: createEmployeeAction,
-    onSuccess: (result) => {
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
-        setIsFormOpen(false)
-        toast('Employee created successfully')
-      } else {
-        toast(result.error)
-      }
-    },
-  })
-
-  // Update employee mutation with success/error handling
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateEmployeeData }) =>
-      updateEmployeeAction(id, data),
-    onSuccess: (result) => {
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
-        setEditingEmployee(null)
-        toast('Employee updated successfully')
-      } else {
-        toast(result.error)
-      }
-    },
-  })
-
   // Delete employee mutation with success/error handling
   const deleteMutation = useMutation({
     mutationFn: deleteEmployeeAction,
@@ -179,18 +145,6 @@ export default function EmployeePage() {
   const confirmDelete = () => {
     if (deletingEmployeeId) {
       deleteMutation.mutate(deletingEmployeeId)
-    }
-  }
-
-  /**
-   * Handles form submission for both create and update operations
-   * Determines operation type based on editingEmployee state
-   */
-  const handleFormSubmit = async (data: CreateEmployeeData) => {
-    if (editingEmployee) {
-      await updateMutation.mutateAsync({ id: editingEmployee.id, data })
-    } else {
-      await createMutation.mutateAsync(data)
     }
   }
 
@@ -397,27 +351,14 @@ export default function EmployeePage() {
       )}
 
       {/* Create/Edit Employee Dialog */}
-      <Dialog
-        open={isFormOpen || !!editingEmployee}
-        onOpenChange={(open) => {
-          if (!open) {
-            setIsFormOpen(false)
-            setEditingEmployee(null)
-          }
+      <EditEmployeeDialog
+        isOpen={isFormOpen || !!editingEmployee}
+        employee={editingEmployee}
+        onClose={() => {
+          setIsFormOpen(false)
+          setEditingEmployee(null)
         }}
-      >
-        <DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-          <EmployeeForm
-            employee={editingEmployee || undefined}
-            onSubmit={handleFormSubmit}
-            onCancel={() => {
-              setIsFormOpen(false)
-              setEditingEmployee(null)
-            }}
-            isLoading={createMutation.isPending || updateMutation.isPending}
-          />
-        </DialogContent>
-      </Dialog>
+      />
 
       {/* Delete Confirmation Dialog */}
       {(() => {

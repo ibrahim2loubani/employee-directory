@@ -1,12 +1,10 @@
 'use client'
 
 import DeleteEmployeeDialog from '@/components/dialogs/DeleteEmployeeDialog'
+import { EditEmployeeDialog } from '@/components/dialogs/EditEmployeeDialog'
 import { EmployeeDetails } from '@/components/EmployeeDetails'
-import { EmployeeForm } from '@/components/forms/employee-form'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { useEmployee } from '@/hooks/useEmployee'
-import { deleteEmployeeAction, updateEmployeeAction } from '@/queries/actions'
-import { UpdateEmployeeData } from '@/queries/employee'
+import { deleteEmployeeAction } from '@/queries/actions'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { motion } from 'framer-motion'
 import { useParams, useRouter } from 'next/navigation'
@@ -27,25 +25,6 @@ const EmployeePage = () => {
 
   // Fetch employee data using React Query
   const { data: employee, isLoading, error, isError } = useEmployee(employeeId)
-
-  // Update employee mutation
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateEmployeeData }) =>
-      updateEmployeeAction(id, data),
-    onSuccess: (result) => {
-      if (result.success) {
-        queryClient.invalidateQueries({ queryKey: ['employee', employeeId] })
-        queryClient.invalidateQueries({ queryKey: ['employees'] })
-        setIsEditDialogOpen(false)
-        toast.success('Employee updated successfully')
-      } else {
-        toast.error(result.error)
-      }
-    },
-    onError: () => {
-      toast.error('Failed to update employee')
-    },
-  })
 
   // Delete employee mutation
   const deleteMutation = useMutation({
@@ -71,13 +50,6 @@ const EmployeePage = () => {
   // Handle delete employee
   const handleDelete = () => {
     setIsDeleteDialogOpen(true)
-  }
-
-  // Handle form submission for edit
-  const handleFormSubmit = async (data: UpdateEmployeeData) => {
-    if (employee) {
-      await updateMutation.mutateAsync({ id: employee.id, data })
-    }
   }
 
   // Confirm delete
@@ -150,16 +122,11 @@ const EmployeePage = () => {
       />
 
       {/* Edit Employee Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className='max-w-4xl max-h-[90vh] overflow-y-auto'>
-          <EmployeeForm
-            employee={employee}
-            onSubmit={handleFormSubmit}
-            onCancel={() => setIsEditDialogOpen(false)}
-            isLoading={updateMutation.isPending}
-          />
-        </DialogContent>
-      </Dialog>
+      <EditEmployeeDialog
+        isOpen={isEditDialogOpen}
+        employee={employee}
+        onClose={() => setIsEditDialogOpen(false)}
+      />
 
       {/* Delete Employee Dialog */}
       <DeleteEmployeeDialog

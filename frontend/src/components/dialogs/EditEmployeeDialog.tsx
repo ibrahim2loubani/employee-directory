@@ -38,6 +38,7 @@ export const EditEmployeeDialog: React.FC<EditEmployeeDialogProps> = ({
     onSuccess: (result) => {
       if (result.success) {
         queryClient.invalidateQueries({ queryKey: ['employees'] })
+        queryClient.invalidateQueries({ queryKey: ['employee', employee?.id] })
         onClose()
         toast('Employee updated successfully')
       } else {
